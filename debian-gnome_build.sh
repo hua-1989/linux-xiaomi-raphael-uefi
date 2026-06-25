@@ -8,8 +8,8 @@ then
   exit
 fi
 
-# 设置 Ubuntu 版本
-UBUNTU_VERSION="noble"
+# 设置 Debian 版本
+DEBIAN_VERSION="trixie"
 
 # 创建根文件系统镜像
 truncate -s 6G rootfs.img
@@ -18,7 +18,7 @@ mkdir rootdir
 mount -o loop rootfs.img rootdir
 
 # debootstrap生成镜像
-debootstrap --arch=arm64 $UBUNTU_VERSION rootdir https://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/
+debootstrap --arch=arm64 $DEBIAN_VERSION rootdir https://mirrors.tuna.tsinghua.edu.cn/debian/
 
 # 绑定系统目录
 mount --bind /dev rootdir/dev
@@ -38,10 +38,10 @@ export DEBIAN_FRONTEND=noninteractive
 
 # 配置清华镜像源
 cat > rootdir/etc/apt/sources.list << 'EOF'
-deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ noble main restricted universe multiverse
-deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ noble-updates main restricted universe multiverse
-deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ noble-backports main restricted universe multiverse
-deb http://ports.ubuntu.com/ubuntu-ports/ noble-security main restricted universe multiverse
+deb http://mirrors.tuna.tsinghua.edu.cn/debian/ trixie main contrib non-free non-free-firmware
+deb http://mirrors.tuna.tsinghua.edu.cn/debian/ trixie-updates main contrib non-free non-free-firmware
+deb http://mirrors.tuna.tsinghua.edu.cn/debian/ trixie-backports main contrib non-free non-free-firmware
+deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
 EOF
 
 # 更新系统
@@ -49,41 +49,13 @@ chroot rootdir apt update
 chroot rootdir apt upgrade -y
 
 # 安装基础软件包
-chroot rootdir apt install -y bash-completion sudo apt-utils ssh openssh-server nano systemd-boot initramfs-tools chrony curl wget dnsmasq iptables iproute2 $1
+chroot rootdir apt install -y bash-completion sudo apt-utils ssh openssh-server nano initramfs-tools chrony curl wget dnsmasq nftables iproute2 zram-tools gnome
 
 # 安装设备特定软件包
 chroot rootdir apt install -y rmtfs protection-domain-mapper tqftpserv
 
 # 安装语言包和设置默认语言为简体中文
 chroot rootdir apt install -y locales locales-all tzdata
-chroot rootdir apt install -y \
-	fonts-arphic-uming \
-	language-pack-gnome-zh-hans-base \
-	language-pack-zh-hans-base \
-	language-pack-zh-hans \
-	language-pack-gnome-zh-hans \
-	fonts-arphic-ukai \
-	fonts-noto-cjk \
-	fonts-noto-cjk-extra \
-	gnome-user-docs-zh-hans \
-	libopencc-data \
-	libmarisa0 \
-	libopencc1.1 \
-	libpinyin-data \
-	libpinyin15 \
-	ibus-libpinyin \
-	ibus-table \
-	ibus-table-wubi \
-	language-pack-gnome-zh-hant-base \
-	language-pack-zh-hant-base \
-	language-pack-zh-hant \
-	language-pack-gnome-zh-hant \
-	libchewing3-data \
-	libchewing3 \
-	ibus-chewing \
-	ibus-table-cangjie3 \
-	ibus-table-cangjie5 \
-	ibus-table-quick-classic
 	
 chroot rootdir sed -i 's/^# *zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/' /etc/locale.gen
 chroot rootdir locale-gen zh_CN.UTF-8
@@ -96,7 +68,7 @@ chroot rootdir dpkg-reconfigure -f noninteractive tzdata
 sed -i '/ConditionKernelVersion/d' rootdir/lib/systemd/system/pd-mapper.service
 
 # 复制并安装内核包（从预下载的目录）
-cp xiaomi-raphael-debs_$2/*-xiaomi-raphael.deb rootdir/tmp/
+cp xiaomi-raphael-debs_$1/*-xiaomi-raphael.deb rootdir/tmp/
 chroot rootdir dpkg -i /tmp/linux-image-xiaomi-raphael.deb
 chroot rootdir dpkg -i /tmp/linux-headers-xiaomi-raphael.deb
 chroot rootdir dpkg -i /tmp/firmware-xiaomi-raphael.deb
@@ -112,7 +84,6 @@ dhcp-authoritative
 dhcp-range=172.16.42.2,172.16.42.254,255.255.255.0,1h
 dhcp-option=3,172.16.42.1
 EOF
-echo "net.ipv4.ip_forward=1" | tee rootdir/etc/sysctl.d/99-usb-ncm.conf
 chroot rootdir systemctl enable dnsmasq
 cat > rootdir/usr/local/sbin/setup-usb-ncm.sh << 'EOF'
 #!/bin/sh
@@ -137,11 +108,6 @@ UDC=$(ls /sys/class/udc | head -n 1)
 echo $UDC > $G/UDC
 ip link set usb0 up
 ip addr add 172.16.42.1/24 dev usb0 || true
-OUT=$(ip route get 1.1.1.1 | awk '{print $5; exit}')
-sysctl -w net.ipv4.ip_forward=1
-iptables -t nat -C POSTROUTING -o $OUT -j MASQUERADE || iptables -t nat -A POSTROUTING -o $OUT -j MASQUERADE
-iptables -C FORWARD -i $OUT -o usb0 -m state --state RELATED,ESTABLISHED -j ACCEPT || iptables -A FORWARD -i $OUT -o usb0 -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -C FORWARD -i usb0 -o $OUT -j ACCEPT || iptables -A FORWARD -i usb0 -o $OUT -j ACCEPT
 systemctl restart dnsmasq || true
 EOF
 chmod +x rootdir/usr/local/sbin/setup-usb-ncm.sh
@@ -160,9 +126,6 @@ RemainAfterExit=yes
 WantedBy=multi-user.target
 EOF
 chroot rootdir systemctl enable usb-ncm
-
-# 启用 Phosh 服务
-chroot rootdir systemctl enable phosh
 
 #EFI
 chroot rootdir apt install -y grub-efi-arm64
@@ -187,6 +150,29 @@ echo "user:1234" | chroot rootdir chpasswd
 # 允许SSH root登录
 echo "PermitRootLogin yes" | tee -a rootdir/etc/ssh/sshd_config
 echo "PasswordAuthentication yes" | tee -a rootdir/etc/ssh/sshd_config
+
+# 彻底禁用系统休眠
+chroot rootdir systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
+
+# 启用 zramswap
+sed -i \
+    -e 's/^ALGO=.*/ALGO=zstd/' \
+    -e 's/^PERCENT=.*/# &/' \
+    -e 's/^SIZE=.*/SIZE=10240/' \
+    rootdir/etc/default/zramswap
+
+chroot rootdir systemctl enable zramswap
+
+# 禁用 WiFi 省电模式，解决连接 WiFi 跳 ping 问题
+mkdir -p rootdir/etc/NetworkManager/conf.d
+cat > rootdir/etc/NetworkManager/conf.d/wifi-powersave.conf << 'EOF'
+[connection]
+wifi.powersave = 2
+EOF
+mkdir -p rootdir/etc/modprobe.d
+cat > rootdir/etc/modprobe.d/ath10k.conf << 'EOF'
+options ath10k_core skip_otp=y
+EOF
 
 # 清理 apt 缓存
 chroot rootdir apt clean

@@ -8,19 +8,22 @@ on:
       system_type:
         description: '系统类型'
         required: true
-        default: 'debian-desktop'
+        default: ''
         type: choice
         options:
-          - debian-desktop
+          - ''
+          - debian-gnome
+          - debian-phosh
           - debian-server
-          - ubuntu-desktop
+          - ubuntu-gnome
+          - ubuntu-phosh
           - ubuntu-server
       kernel_version:
         description: '内核版本号 (从 Release 下载对应版本)'
         required: true
-        default: '6.18'
+        default: '7.1'
       desktop_environment:
-        description: '桌面环境 (仅适用于Desktop版本)'
+        description: '桌面环境 (仅适用于Phosh版本，GNOME版本和server版本无需选择)'
         required: false
         default: ''
         type: choice
@@ -67,9 +70,9 @@ jobs:
           echo "内核版本: ${{ env.KERNEL_VERSION }}"
           echo "桌面环境: ${{ env.DESKTOP_ENV }}"
           
-          # 检查Desktop版本是否提供了桌面环境参数
-          if [[ "${{ env.SYSTEM_TYPE }}" == *"desktop"* && -z "${{ inputs.desktop_environment }}" ]]; then
-            echo "错误: Desktop版本必须指定桌面环境参数"
+          # 检查 Phosh 版本是否提供了桌面环境参数
+          if [[ "${{ env.SYSTEM_TYPE }}" == *"phosh"* && -z "${{ inputs.desktop_environment }}" ]]; then
+            echo "错误: Phosh版本必须指定桌面环境参数"
             exit 1
           fi
       
@@ -92,8 +95,8 @@ jobs:
           curl -L -o xiaomi-raphael-debs_${{ env.KERNEL_VERSION }}/firmware-xiaomi-raphael.deb \
             "https://github.com/${{ github.repository }}/releases/download/kernel-v${{ env.KERNEL_VERSION }}/firmware-xiaomi-raphael.deb" || echo "下载 firmware-xiaomi-raphael.deb 失败，可能 Release 不存在"
           
-          # Desktop版本需要额外的alsa包
-          if [[ "${{ env.SYSTEM_TYPE }}" == *"desktop"* ]]; then
+          # 桌面版本需要额外的alsa包
+          if [[ "${{ env.SYSTEM_TYPE }}" == *"phosh"* || "${{ env.SYSTEM_TYPE }}" == *"gnome"* ]]; then
             curl -L -o xiaomi-raphael-debs_${{ env.KERNEL_VERSION }}/alsa-xiaomi-raphael.deb \
               "https://github.com/${{ github.repository }}/releases/download/kernel-v${{ env.KERNEL_VERSION }}/alsa-xiaomi-raphael.deb" || echo "下载 alsa-xiaomi-raphael.deb 失败，可能 Release 不存在"
           fi
@@ -121,14 +124,20 @@ jobs:
           
           # 根据系统类型执行对应的构建脚本
           case "${{ env.SYSTEM_TYPE }}" in
-            "debian-desktop")
-              sudo sh debian-desktop_build.sh "${{ env.DESKTOP_ENV }}" "${{ env.KERNEL_VERSION }}"
+            "debian-gnome")
+              sudo sh debian-gnome_build.sh "${{ env.KERNEL_VERSION }}"
+              ;;
+            "debian-phosh")
+              sudo sh debian-phosh_build.sh "${{ env.DESKTOP_ENV }}" "${{ env.KERNEL_VERSION }}"
               ;;
             "debian-server")
               sudo sh debian-server_build.sh "${{ env.KERNEL_VERSION }}"
               ;;
-            "ubuntu-desktop")
-              sudo sh ubuntu-desktop_build.sh "${{ env.DESKTOP_ENV }}" "${{ env.KERNEL_VERSION }}"
+            "ubuntu-gnome")
+              sudo sh ubuntu-gnome_build.sh "${{ env.KERNEL_VERSION }}"
+              ;;
+            "ubuntu-phosh")
+              sudo sh ubuntu-phosh_build.sh "${{ env.DESKTOP_ENV }}" "${{ env.KERNEL_VERSION }}"
               ;;
             "ubuntu-server")
               sudo sh ubuntu-server_build.sh "${{ env.KERNEL_VERSION }}"
@@ -161,11 +170,11 @@ jobs:
           
           # 获取系统版本信息
           case "${{ env.SYSTEM_TYPE }}" in
-            "debian-desktop"|"debian-server")
+            "debian-gnome"|"debian-phosh"|"debian-server")
               OS_NAME="Debian"
               OS_VERSION="trixie"
               ;;
-            "ubuntu-desktop"|"ubuntu-server")
+            "ubuntu-gnome"|"ubuntu-phosh"|"ubuntu-server")
               OS_NAME="Ubuntu"
               OS_VERSION="noble"
               ;;
@@ -174,7 +183,7 @@ jobs:
           echo "os_version=$OS_VERSION" >> $GITHUB_OUTPUT
           
           # 确定系统类别
-          if [[ "${{ env.SYSTEM_TYPE }}" == *"desktop"* ]]; then
+          if [[ "${{ env.SYSTEM_TYPE }}" == *"phosh"* || "${{ env.SYSTEM_TYPE }}" == *"gnome"* ]]; then
             SYSTEM_CATEGORY="Desktop"
           else
             SYSTEM_CATEGORY="Server"
@@ -187,15 +196,17 @@ jobs:
         run: |
           # 生成Release标签
           TAG="${{ env.SYSTEM_TYPE }}-v${{ env.KERNEL_VERSION }}"
-          if [[ "${{ env.SYSTEM_TYPE }}" == *"desktop"* ]]; then
+          if [[ "${{ env.SYSTEM_TYPE }}" == *"phosh"* ]]; then
             TAG="${TAG}-${{ env.DESKTOP_ENV }}"
           fi
           echo "tag_name=$TAG" >> $GITHUB_OUTPUT
           
           # 生成Release名称
           RELEASE_NAME="${{ steps.build-info.outputs.os_name }} ${{ steps.build-info.outputs.system_category }} 镜像 v${{ env.KERNEL_VERSION }}"
-          if [[ "${{ env.SYSTEM_TYPE }}" == *"desktop"* ]]; then
+          if [[ "${{ env.SYSTEM_TYPE }}" == *"phosh"* ]]; then
             RELEASE_NAME="${RELEASE_NAME} (${{ env.DESKTOP_ENV }})"
+          elif [[ "${{ env.SYSTEM_TYPE }}" == *"gnome"* ]]; then
+            RELEASE_NAME="${RELEASE_NAME} (gnome)"
           fi
           echo "release_name=$RELEASE_NAME" >> $GITHUB_OUTPUT
       
@@ -209,8 +220,10 @@ jobs:
           DESCRIPTION="${DESCRIPTION}- 内核版本: ${{ steps.download-kernel.outputs.kernel_pkg_version }}\n"
           DESCRIPTION="${DESCRIPTION}- 系统镜像UUID: ${{ steps.build-image.outputs.rootfs_uuid }}\n"
           
-          if [[ "${{ env.SYSTEM_TYPE }}" == *"desktop"* ]]; then
+          if [[ "${{ env.SYSTEM_TYPE }}" == *"phosh"* ]]; then
             DESCRIPTION="${DESCRIPTION}- 桌面环境: ${{ env.DESKTOP_ENV }}\n"
+          elif [[ "${{ env.SYSTEM_TYPE }}" == *"gnome"* ]]; then
+            DESCRIPTION="${DESCRIPTION}- 桌面环境: gnome\n"
           fi
           
           DESCRIPTION="${DESCRIPTION}- 构建时间: ${{ steps.build-info.outputs.timestamp }}\n"
@@ -227,7 +240,11 @@ jobs:
           else
             DESCRIPTION="${DESCRIPTION}说明：\n"
             DESCRIPTION="${DESCRIPTION}- 这是一个带有图形界面的桌面版本\n"
-            DESCRIPTION="${DESCRIPTION}- 包含 ${{ env.DESKTOP_ENV }} 桌面环境\n"
+            if [[ "${{ env.SYSTEM_TYPE }}" == *"phosh"* ]]; then
+              DESCRIPTION="${DESCRIPTION}- 包含 ${{ env.DESKTOP_ENV }} 桌面环境\n"
+            else
+              DESCRIPTION="${DESCRIPTION}- 包含 gnome 桌面环境\n"
+            fi
             DESCRIPTION="${DESCRIPTION}- 已安装 SSH 服务器\n"
             DESCRIPTION="${DESCRIPTION}- 已安装中文语言支持\n"
             DESCRIPTION="${DESCRIPTION}- 包含必要的设备驱动和固件\n"

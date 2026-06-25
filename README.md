@@ -7,9 +7,11 @@
 本项目包含完整的构建工具链，可用于构建适用于小米 Raphael 设备的 Linux UEFI 系统镜像，包括：
 
 - **内核编译工作流** - 自动化编译定制的 Linux 内核
-- **Debian Desktop** - 带 Phosh 桌面环境的 Debian 系统
+- **Debian gnome** - 带 gnome 桌面环境的 Debian 系统
+- **Debian Phosh** - 带 Phosh 桌面环境的 Debian 系统
 - **Debian Server** - 无图形界面的 Debian 服务器系统
-- **Ubuntu Desktop** - 带 Phosh 桌面环境的 Ubuntu 系统
+- **Ubuntu gnome** - 带 gnome 桌面环境的 Ubuntu 系统
+- **Ubuntu Phosh** - 带 Phosh 桌面环境的 Ubuntu 系统
 - **Ubuntu Server** - 无图形界面的 Ubuntu 服务器系统
 
 ## 📋 目前工作
@@ -35,16 +37,18 @@
    - 进入仓库的 Actions 页面
    - 选择 "内核编译" 工作流
    - 点击 "Run workflow"
-   - 输入内核版本号（如 `6.18`）
+   - 输入内核版本号（如 `7.1`）
    - 等待构建完成，产物将自动发布到 Releases
 
 3. **构建系统镜像**：
    - 选择 "构建系统镜像" 工作流
    - 点击 "Run workflow"
    - 选择系统类型：
-       - `debian-desktop`：Debian 桌面版
+       - `debian-gnome`：Debian gnome 版
+       - `debian-phosh`：Debian Phosh 版
        - `debian-server`：Debian 服务器版
-       - `ubuntu-desktop`：Ubuntu 桌面版
+       - `ubuntu-gnome`：Ubuntu gnome 版
+       - `ubuntu-phosh`：Ubuntu Phosh 版
        - `ubuntu-server`：Ubuntu 服务器版
    - 内核版本号：
        - `上一步构建的内核版本号`
@@ -68,6 +72,7 @@
 - ✅ dpkg更新内核
 
 ### 桌面版额外特性
+- ✅ GNOME 桌面环境(电源键无法息屏）
 - ✅ Phosh 移动桌面环境
 
 ### 服务器版额外特性
@@ -134,5 +139,5 @@ grub-mkconfig -o /boot/grub/grub.cfg
 - [@map220v](https://github.com/map220v/ubuntu-xiaomi-nabu) - 原项目
 - [@Pc1598](https://github.com/Pc1598) - sm8150-mainline-raphael内核维护
 - [Aospa-raphael-unofficial/linux](https://github.com/Aospa-raphael-unofficial/linux) - 内核项目
-- [sm8150-mainline/linux](https://gitlab.com/sm8150-mainline/linux) - 内核项目
+- [sm8150-mainline/linux](https://gitlab.postmarketos.org/soc/qualcomm-sm8150/linux) - 内核项目
 - [mu_aloha_platforms](https://github.com/Project-Aloha/mu_aloha_platforms) - 骁龙设备的 Mu UEFI

@@ -9,7 +9,7 @@ then
 fi
 
 # 设置 Ubuntu 版本
-UBUNTU_VERSION="noble"
+UBUNTU_VERSION="resolute"
 
 # 创建根文件系统镜像
 truncate -s 3G rootfs.img
@@ -38,10 +38,10 @@ export DEBIAN_FRONTEND=noninteractive
 
 # 配置清华镜像源
 cat > rootdir/etc/apt/sources.list << 'EOF'
-deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ noble main restricted universe multiverse
-deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ noble-updates main restricted universe multiverse
-deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ noble-backports main restricted universe multiverse
-deb http://ports.ubuntu.com/ubuntu-ports/ noble-security main restricted universe multiverse
+deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ resolute main restricted universe multiverse
+deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ resolute-updates main restricted universe multiverse
+deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ resolute-backports main restricted universe multiverse
+deb http://ports.ubuntu.com/ubuntu-ports/ resolute-security main restricted universe multiverse
 EOF
 
 # 更新系统
@@ -49,7 +49,7 @@ chroot rootdir apt update
 chroot rootdir apt upgrade -y
 
 # 安装基础软件包
-chroot rootdir apt install -y bash-completion sudo apt-utils ssh openssh-server nano network-manager systemd-boot initramfs-tools chrony curl wget locales tzdata language-pack-zh-hans dnsmasq iptables iproute2
+chroot rootdir apt install -y bash-completion sudo apt-utils ssh openssh-server nano network-manager initramfs-tools chrony curl wget locales tzdata language-pack-zh-hans dnsmasq nftables iproute2 zram-tools
 
 # 设置时区和语言
 echo "Asia/Shanghai" > rootdir/etc/timezone
@@ -89,7 +89,6 @@ dhcp-authoritative
 dhcp-range=172.16.42.2,172.16.42.254,255.255.255.0,1h
 dhcp-option=3,172.16.42.1
 EOF
-echo "net.ipv4.ip_forward=1" | tee rootdir/etc/sysctl.d/99-usb-ncm.conf
 chroot rootdir systemctl enable dnsmasq
 cat > rootdir/usr/local/sbin/setup-usb-ncm.sh << 'EOF'
 #!/bin/sh
@@ -114,11 +113,6 @@ UDC=$(ls /sys/class/udc | head -n 1)
 echo $UDC > $G/UDC
 ip link set usb0 up
 ip addr add 172.16.42.1/24 dev usb0 || true
-OUT=$(ip route get 1.1.1.1 | awk '{print $5; exit}')
-sysctl -w net.ipv4.ip_forward=1
-iptables -t nat -C POSTROUTING -o $OUT -j MASQUERADE || iptables -t nat -A POSTROUTING -o $OUT -j MASQUERADE
-iptables -C FORWARD -i $OUT -o usb0 -m state --state RELATED,ESTABLISHED -j ACCEPT || iptables -A FORWARD -i $OUT -o usb0 -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -C FORWARD -i usb0 -o $OUT -j ACCEPT || iptables -A FORWARD -i usb0 -o $OUT -j ACCEPT
 systemctl restart dnsmasq || true
 EOF
 chmod +x rootdir/usr/local/sbin/setup-usb-ncm.sh
@@ -209,6 +203,26 @@ RestartSec=5s
 WantedBy=multi-user.target
 EOF
 chroot rootdir systemctl enable blank_screen.service
+
+# 启用 zramswap
+sed -i \
+    -e 's/^ALGO=.*/ALGO=zstd/' \
+    -e 's/^PERCENT=.*/# &/' \
+    -e 's/^SIZE=.*/SIZE=10240/' \
+    rootdir/etc/default/zramswap
+
+chroot rootdir systemctl enable zramswap
+
+# 禁用 WiFi 省电模式，解决连接 WiFi 跳 ping 问题
+mkdir -p rootdir/etc/NetworkManager/conf.d
+cat > rootdir/etc/NetworkManager/conf.d/wifi-powersave.conf << 'EOF'
+[connection]
+wifi.powersave = 2
+EOF
+mkdir -p rootdir/etc/modprobe.d
+cat > rootdir/etc/modprobe.d/ath10k.conf << 'EOF'
+options ath10k_core skip_otp=y
+EOF
 
 # 清理 apt 缓存
 chroot rootdir apt clean
