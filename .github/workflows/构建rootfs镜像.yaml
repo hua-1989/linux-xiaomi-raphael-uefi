@@ -168,17 +168,15 @@ jobs:
           TIMESTAMP=$(TZ='Asia/Shanghai' date +'%Y-%m-%d %H:%M:%S')
           echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
           
-          # 获取系统版本信息
-          case "${{ env.SYSTEM_TYPE }}" in
-            "debian-gnome"|"debian-phosh"|"debian-server")
-              OS_NAME="Debian"
-              OS_VERSION="trixie"
-              ;;
-            "ubuntu-gnome"|"ubuntu-phosh"|"ubuntu-server")
-              OS_NAME="Ubuntu"
-              OS_VERSION="noble"
-              ;;
-          esac
+          # 获取系统版本信息（从构建脚本中读取）
+          BUILD_SCRIPT="${{ env.SYSTEM_TYPE }}_build.sh"
+          if [[ "${{ env.SYSTEM_TYPE }}" == debian-* ]]; then
+            OS_NAME="Debian"
+            OS_VERSION=$(grep -oP 'DEBIAN_VERSION="\K[^"]+' "$BUILD_SCRIPT")
+          elif [[ "${{ env.SYSTEM_TYPE }}" == ubuntu-* ]]; then
+            OS_NAME="Ubuntu"
+            OS_VERSION=$(grep -oP 'UBUNTU_VERSION="\K[^"]+' "$BUILD_SCRIPT")
+          fi
           echo "os_name=$OS_NAME" >> $GITHUB_OUTPUT
           echo "os_version=$OS_VERSION" >> $GITHUB_OUTPUT
           
