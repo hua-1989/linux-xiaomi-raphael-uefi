@@ -26,6 +26,7 @@
 - ✅ 手电筒 (LED及强度调节)
 - ✅ GPU
 - ✅ FDE
+- ✅ 音频（耳机/扬声器输出）
 
 ## 🚀 快速开始
 
@@ -130,14 +131,18 @@ grub-mkconfig -o /boot/grub/grub.cfg
 	- 3.usb连接电脑安装好NCM驱动后输入 `nmtui` 连接wifi
 
 ## 🙏 致谢
-
-- 感谢所有 Linux 内核开发者的辛勤工作
-- 感谢 Debian 和 Ubuntu 社区
-- 感谢 Phosh 桌面环境开发团队
+本项目基于众多开源项目与开发者成果开发，排名不分先后，特此致谢：
+- Linux 内核官方开发团队、Debian / Ubuntu 开源社区、Phosh 桌面开发团队
 - 感谢所有贡献者和用户的支持
-- [@cuicanmx](https://github.com/cuicanmx) - 提供帮助以及创新思路
-- [@map220v](https://github.com/map220v/ubuntu-xiaomi-nabu) - 原项目
-- [@Pc1598](https://github.com/Pc1598) - sm8150-mainline-raphael内核维护
+- [@degdag](https://github.com/degdag)
+- [@dabao1955](https://github.com/dabao1955)
+- [@qaz6750](https://github.com/qaz6750)
+- [@GavinLiuOnline](https://github.com/GavinLiuOnline)
+- [@umeiko](https://github.com/umeiko)
+- [@yuweiyuan8](https://github.com/yuweiyuan8)
+- [@璀璨梦星](https://github.com/ccmx200)
+- [@map220v](https://github.com/map220v)
+- [@Pc1598](https://github.com/Pc1598)
 - [Aospa-raphael-unofficial/linux](https://github.com/Aospa-raphael-unofficial/linux) - 内核项目
 - [sm8150-mainline/linux](https://gitlab.postmarketos.org/soc/qualcomm-sm8150/linux) - 内核项目
 - [mu_aloha_platforms](https://github.com/Project-Aloha/mu_aloha_platforms) - 骁龙设备的 Mu UEFI
