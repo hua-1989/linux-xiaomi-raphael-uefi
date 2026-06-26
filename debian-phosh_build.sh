@@ -177,6 +177,37 @@ cat > rootdir/etc/modprobe.d/ath10k.conf << 'EOF'
 options ath10k_core skip_otp=y
 EOF
 
+# WirePlumber 音频配置文件
+mkdir -p rootdir/etc/wireplumber/wireplumber.conf.d
+cat > rootdir/etc/wireplumber/wireplumber.conf.d/51-disable-suspension.conf << 'EOF'
+monitor.alsa.rules = [
+  {
+    matches = [
+      {
+        # Matches all sources
+        node.name = "~alsa_input.*"
+      },
+      {
+        # Matches all sinks
+        node.name = "~alsa_output.*"
+      }
+    ]
+    actions = {
+      update-props = {
+        audio.format           = "S16LE"
+        audio.rate             = 48000
+        api.alsa.period-size   = 4096
+        api.alsa.period-num    = 6
+        api.alsa.headroom      = 512,
+       # session.suspend-timeout-seconds = 0
+       # dither.method = "wannamaker3", # add dither of desired shape
+       # dither.noise = 2, # add additional bits of noise
+     }
+    }
+  }
+]
+EOF
+
 # 清理 apt 缓存
 chroot rootdir apt clean
 
