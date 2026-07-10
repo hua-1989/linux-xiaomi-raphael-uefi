@@ -1,93 +1,108 @@
-# 小米 Raphael 设备 Linux UEFI 系统镜像构建项目
+<div align="center">
 
-本项目提供用于小米 Raphael 设备（Redmi K20 Pro）的 Debian/Ubuntu Linux UEFI 系统镜像构建脚本和自动化工作流，支持桌面环境和服务器版本。
+# <img src="https://img.shields.io/badge/Device-Xiaomi_Raphael-FF6900?style=for-the-badge&logo=android&logoColor=white" alt="Device"/> <img src="https://img.shields.io/badge/Linux-Ubuntu|Debian-E95420?style=for-the-badge&logo=linux&logoColor=white" alt="Linux"/>
 
-## 📋 项目概述
+# 📱 小米 Raphael Linux 镜像构建项目
 
-本项目包含完整的构建工具链，可用于构建适用于小米 Raphael 设备的 Linux UEFI 系统镜像，包括：
+### Redmi K20 Pro · 一键构建 Debian / Ubuntu 系统镜像
 
-- **内核编译工作流** - 自动化编译定制的 Linux 内核
-- **Debian gnome** - 带 gnome 桌面环境的 Debian 系统
-- **Debian Phosh** - 带 Phosh 桌面环境的 Debian 系统
-- **Debian Server** - 无图形界面的 Debian 服务器系统
-- **Ubuntu gnome** - 带 gnome 桌面环境的 Ubuntu 系统
-- **Ubuntu Phosh** - 带 Phosh 桌面环境的 Ubuntu 系统
-- **Ubuntu Server** - 无图形界面的 Ubuntu 服务器系统
+[![Build](https://img.shields.io/github/actions/workflow/status/GengWei1997/linux-xiaomi-raphael-uefi/build-system.yml?style=flat-square&label=Build&logo=github-actions&logoColor=white)](https://github.com/GengWei1997/linux-xiaomi-raphael-uefi/actions)
+[![Release](https://img.shields.io/github/v/release/GengWei1997/linux-xiaomi-raphael-uefi?style=flat-square&label=Release&logo=github&logoColor=white)](https://github.com/GengWei1997/linux-xiaomi-raphael-uefi/releases)
+[![Stars](https://img.shields.io/github/stars/GengWei1997/linux-xiaomi-raphael-uefi?style=flat-square&logo=github&logoColor=white)](https://github.com/GengWei1997/linux-xiaomi-raphael-uefi/stargazers)
 
-## 📋 目前工作
+---
 
-- ✅ Wi-Fi (2.4Ghz，5Ghz)
-- ✅ 蓝牙 (文件传输，音频)
-- ✅ USB (ssh，OTG)
-- ✅ 电池
-- ✅ 实时时钟
-- ✅ 显示
-- ✅ 触摸
-- ✅ 手电筒 (LED及强度调节)
-- ✅ GPU
-- ✅ FDE
-- ✅ 音频（耳机/扬声器输出）
+</div>
 
-## 🚀 快速开始
+## ✨ 项目简介
 
-### 使用 GitHub Actions 自动化构建
+本项目为 **小米 Raphael（Redmi K20 Pro）** 专属 Linux 镜像构建方案，提供完整的 Debian / Ubuntu 系统镜像构建脚本与 GitHub Actions 自动化工作流。支持多内核版本、多桌面环境，开箱即用。
 
-1. **Fork 本仓库**到你的 GitHub 账户
+## 📋 支持系统类型
 
-2. **构建内核**：
-   - 进入仓库的 Actions 页面
-   - 选择 "内核编译" 工作流
-   - 点击 "Run workflow"
-   - 输入内核版本号（如 `7.1`）
-   - 等待构建完成，产物将自动发布到 Releases
+| 系统标识 | 桌面环境 | 发行版 | 镜像大小 |
+|:---:|:---:|:---:|:---:|
+| `debian-server` | 无（纯命令行） | Debian trixie | 3G |
+| `debian-gnome` | GNOME | Debian trixie | 6G |
+| `debian-phosh` | Phosh 移动端桌面 | Debian trixie | 6G |
+| `ubuntu-server` | 无（纯命令行） | Ubuntu resolute | 3G |
+| `ubuntu-gnome` | GNOME | Ubuntu resolute | 6G |
+| `ubuntu-phosh` | Phosh 移动端桌面 | Ubuntu resolute | 6G |
 
-3. **构建系统镜像**：
-   - 选择 "构建系统镜像" 工作流
-   - 点击 "Run workflow"
-   - 选择系统类型：
-       - `debian-gnome`：Debian gnome 版
-       - `debian-phosh`：Debian Phosh 版
-       - `debian-server`：Debian 服务器版
-       - `ubuntu-gnome`：Ubuntu gnome 版
-       - `ubuntu-phosh`：Ubuntu Phosh 版
-       - `ubuntu-server`：Ubuntu 服务器版
-   - 内核版本号：
-       - `上一步构建的内核版本号`
-   - 选择桌面环境（仅桌面版）：
-       - `phosh-core`：基础 Phosh 环境
-       - `phosh-full`：完整的 Phosh 环境
-       - `phosh-phone`：手机优化的 Phosh 环境
-   - 等待构建完成，镜像将自动发布到 Releases
+## 🖥️ 设备硬件适配
+
+| 分类 | 支持项目 | 状态 |
+|:---:|:---|:---:|
+| 🌐 **网络** | 2.4G / 5G 双频 Wi-Fi | ✅ |
+| 📡 **蓝牙** | 文件传输 · 音频输出 | ✅ |
+| 📶 **蜂窝** | 网络支持 | ❌ |
+| 🔌 **USB** | NCM 网络共享 · OTG 功能 | ✅ |
+| 🖥️ **显示** | 屏幕输出 · GPU 渲染 | ✅ |
+| 🔊 **音频** | 扬声器 · 耳机输出 | ✅ |
+| 👆 **输入** | 触摸屏 · 闪光灯（手电筒） | ✅ |
+| 🔋 **系统** | 电池检测 · 实时时钟 · FDE 加密 | ✅ |
+
+## 🚀 快速上手
+
+### 方式一：下载预构建镜像
+
+前往 [Releases](https://github.com/GengWei1997/linux-xiaomi-raphael-uefi/releases) 页面下载最新镜像，无需本地编译。
+
+> ⚠️ `ubuntu-gnome` 镜像体积超过 2GB，请前往项目 [Actions → Artifacts](https://github.com/GengWei1997/linux-xiaomi-raphael-uefi/actions) 下载。
+
+### 方式二：GitHub Actions 自定义构建（推荐）
+
+1. **Fork** 本仓库至个人 GitHub 账号
+2. 进入 **Actions** 页面 → 选择「构建系统镜像」工作流
+3. 点击 **Run workflow**，自定义参数：
+
+| 参数 | 说明 | 默认值 |
+|:---:|:---|:---:|
+| 构建模式 | `parallel` 并行构建 / `single` 单独构建 | `parallel` |
+| 系统类型 | 支持逗号分隔，留空则全量构建 | 全部 |
+| 内核版本 | 跟随 [Aospa-raphael-unofficial/linux](https://github.com/Aospa-raphael-unofficial/linux) 上游更新 | `7.1` |
+| 构建工具 | `mmdebstrap` / `debootstrap` | `mmdebstrap` |
+| Phosh 变体 | 仅 Phosh 镜像生效 | `phosh-core` |
+
+4. 等待构建完成，镜像自动发布至 Releases
 
 ## 📦 镜像特性
 
-### 通用特性
-- ✅ 清华大学软件源
-- ✅ 简体中文语言环境
-- ✅ 中国标准时区
-- ✅ 支持NCM（usb连接电脑，ssh示例：`ssh user@172.16.42.1`）
-- ✅ 预装 SSH 服务器
-- ✅ 允许 root SSH 登录
-- ✅ 包含必要的设备驱动和固件
-- ✅ 默认用户：`user`（密码：`1234`），`root`（密码：`1234`）
-- ✅ dpkg更新内核
+### 🌐 全版本通用
 
-### 桌面版额外特性
-- ✅ GNOME 桌面环境(电源键无法息屏）
-- ✅ Phosh 移动桌面环境
+- 默认配置 **清华软件源**
+- 预装简体中文语言包 + 中国标准时区，开箱汉化
+- 支持 USB NCM 网络共享，电脑直连设备 SSH
+- 内置 SSH 服务，支持 root / 普通用户远程登录
 
-### 服务器版额外特性
-- ✅ 网络管理器
-- ✅ 开机15秒后自动熄屏
-- ✅ 命令行输入 `leijun` 关闭屏幕，`jinfan` 打开屏幕
+| 账户 | 用户名 | 密码 |
+|:---:|:---:|:---:|
+| 普通用户 | `user` | `1234` |
+| 超级用户 | `root` | `1234` |
 
-## 🔧 安装到设备
+> 📌 USB NCM 连接时，设备 IP：`172.16.42.1`，SSH 连接：`ssh user@172.16.42.1`
 
-### 准备工作
-1. **解锁 Bootloader**：确保设备已解锁 Bootloader
-2. **安装工具**：安装 `fastboot` 和 `adb`
+### 🎨 桌面版专属
 
-### 刷机步骤
+- GNOME / Phosh 双桌面环境可选，适配桌面、移动两种使用场景
+
+### 🖥️ 服务器版专属
+
+- 内置网络管理器，支持有线、Wi-Fi、USB 多种联网方式
+- 开机 15 秒自动熄屏，降低设备功耗
+- 自定义快捷命令：`leijun` 关闭屏幕 · `jinfan` 点亮屏幕
+
+## 🔧 安装教程
+
+### 前置条件
+
+- ✅ 设备已完成 **Bootloader 解锁**
+- ✅ 电脑已安装 `adb` / `fastboot` 工具
+- ✅ 下载镜像压缩包，解压获取：
+  - `rootfs.img` — 系统镜像
+  - [xiaomi-raphael_NOSB.img](https://github.com/Project-Aloha/mu_aloha_platforms) — UEFI 引导
+
+### 刷机命令
 
 ```bash
 教程没有写，会刷的很简单
@@ -96,8 +111,9 @@
 只需要替换grub.cfg的内容
 内核版本，UUID，linux分区编号
 
-进recovery挂载esp，推送你修改好的esp分区（或者用Windows的大容量boot更方便）
+进recovery挂载esp，推送你修改好的esp分区
 
+fastboot flash boot xiaomi-raphael_NOSB.img
 fastboot flash linux rootfs.img
 
 重启手机进入linux后命令行执行
@@ -106,43 +122,108 @@ grub-mkconfig -o /boot/grub/grub.cfg
 会生成新的efi配置，自动适配你的分区
 ```
 
-## ❓ 常见问题解答 (FAQ)
+## ❓ 常见问题
 
-- 如何更新内核
-	- 下载新的内核deb文件
-	- linux-image-xiaomi-raphael.deb
-	- linux-headers-xiaomi-raphael.deb
+| 问题 | 解决方案 |
+|:---|:---|
+| 蜂窝网络支持情况 | 联通 / 电信已支持，移动正在修复中 *[@GavinLiuOnline](https://github.com/GavinLiuOnline)* |
+| Windows 无法连接设备 | 参考 [NCM 驱动教程](https://www.bilibili.com/video/BV1tW4y1A79V/) |
+| Server 版如何联网 | OTG 外接网线自动联网 · OTG 外接键盘输入 `nmtui` 连接 Wi-Fi |
+### 如何更新内核
 
-	- 运行命令：
-	- dpkg -i linux-image-xiaomi-raphael.deb
-	- dpkg -i linux-headers-xiaomi-raphael.deb
+| 步骤 | 命令 |
+|:---:|:---|
+| 1. 下载内核包 | `linux-image-xiaomi-raphael.deb`、`linux-headers-xiaomi-raphael.deb` |
+| 2. 安装内核 | `dpkg -i linux-image-xiaomi-raphael.deb`、`dpkg -i linux-headers-xiaomi-raphael.deb` |
+| 3. 更新引导 | `grub-install && grub-mkconfig -o /boot/grub/grub.cfg` |
 
-	- 注意：请在安装.deb文件后按以下任一方法操作：
-
-	- 方法一：直接在 /boot/grub/grub.cfg 文件中将旧内核版本号替换为新版本号
-
-	- 方法二：依次执行 grub-install 和 grub-mkconfig -o /boot/grub/grub.cfg 命令
-
-- [解决Windows下无法连接使用CDC NCM驱动](https://www.bilibili.com/video/BV1tW4y1A79V/)
-
-- server版怎么连接网络？？？
-	- 1.OTG连接网线系统会自动识别
-	- 2.OTG连接键盘输入 `nmtui` 连接wifi
-	- 3.usb连接电脑安装好NCM驱动后输入 `nmtui` 连接wifi
+---
 
 ## 🙏 致谢
-本项目基于众多开源项目与开发者成果开发，排名不分先后，特此致谢：
-- Linux 内核官方开发团队、Debian / Ubuntu 开源社区、Phosh 桌面开发团队
-- 感谢所有贡献者和用户的支持
-- [@degdag](https://github.com/degdag)
-- [@dabao1955](https://github.com/dabao1955)
-- [@qaz6750](https://github.com/qaz6750)
-- [@GavinLiuOnline](https://github.com/GavinLiuOnline)
-- [@umeiko](https://github.com/umeiko)
-- [@yuweiyuan8](https://github.com/yuweiyuan8)
-- [@璀璨梦星](https://github.com/ccmx200)
-- [@map220v](https://github.com/map220v)
-- [@Pc1598](https://github.com/Pc1598)
-- [Aospa-raphael-unofficial/linux](https://github.com/Aospa-raphael-unofficial/linux) - 内核项目
-- [sm8150-mainline/linux](https://gitlab.postmarketos.org/soc/qualcomm-sm8150/linux) - 内核项目
-- [mu_aloha_platforms](https://github.com/Project-Aloha/mu_aloha_platforms) - 骁龙设备的 Mu UEFI
+
+感谢以下开源项目与开发者的支持（排名不分先后）：
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/degdag">
+        <img src="https://github.com/degdag.png" width="60" height="60" style="border-radius:50%"><br>
+        <sub><b>degdag</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/dabao1955">
+        <img src="https://github.com/dabao1955.png" width="60" height="60" style="border-radius:50%"><br>
+        <sub><b>dabao1955</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/qaz6750">
+        <img src="https://github.com/qaz6750.png" width="60" height="60" style="border-radius:50%"><br>
+        <sub><b>qaz6750</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/GavinLiuOnline">
+        <img src="https://github.com/GavinLiuOnline.png" width="60" height="60" style="border-radius:50%"><br>
+        <sub><b>GavinLiuOnline</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/umeiko">
+        <img src="https://github.com/umeiko.png" width="60" height="60" style="border-radius:50%"><br>
+        <sub><b>umeiko</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/yuweiyuan8">
+        <img src="https://github.com/yuweiyuan8.png" width="60" height="60" style="border-radius:50%"><br>
+        <sub><b>yuweiyuan8</b></sub>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/ccmx200">
+        <img src="https://github.com/ccmx200.png" width="60" height="60" style="border-radius:50%"><br>
+        <sub><b>璀璨梦星</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/map220v">
+        <img src="https://github.com/map220v.png" width="60" height="60" style="border-radius:50%"><br>
+        <sub><b>map220v</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/Pc1598">
+        <img src="https://github.com/Pc1598.png" width="60" height="60" style="border-radius:50%"><br>
+        <sub><b>Pc1598</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/Aospa-raphael-unofficial/linux">
+        <img src="https://github.com/Aospa-raphael-unofficial.png" width="60" height="60" style="border-radius:50%"><br>
+        <sub><b>Aospa-raphael</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://gitlab.postmarketos.org/soc/qualcomm-sm8150/linux">
+        <img src="https://gitlab.postmarketos.org/uploads/-/system/project/avatar/4623/sm8150.png" width="60" height="60" style="border-radius:50%"><br>
+        <sub><b>sm8150-mainline</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
+
+<p align="center">
+  <i>Linux 内核官方开发团队 · Debian / Ubuntu 开源社区 · Phosh 桌面开发团队 · 以及所有开源贡献者</i>
+</p>
+
+---
+
+<div align="center">
+
+**如果这个项目对你有帮助，请给一个 ⭐ Star 支持一下！**
+
+</div>
