@@ -39,16 +39,3 @@ system_config() {
       ;;
   esac
 }
-
-# 镜像源配置
-sources_config() {
-  if [[ "$1" == *"debian-"* ]]; then
-    local version="${DEBIAN_VERSION:-trixie}"
-    echo "DEBIAN_MIRROR=https://mirrors.tuna.tsinghua.edu.cn/debian/"
-    echo "DEBIAN_SECURITY_MIRROR=http://security.debian.org/debian-security"
-  elif [[ "$1" == *"ubuntu-"* ]]; then
-    local version="${UBUNTU_VERSION:-resolute}"
-    echo "UBUNTU_MIRROR=https://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/"
-    echo "UBUNTU_SECURITY_MIRROR=http://ports.ubuntu.com/ubuntu-ports/"
-  fi
-}

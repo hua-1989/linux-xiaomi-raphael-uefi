@@ -29,14 +29,6 @@ while IFS= read -r line; do
 done < "$TMP_SYSTEM_CONFIG"
 rm "$TMP_SYSTEM_CONFIG"
 
-# 加载镜像源配置
-TMP_SOURCES_CONFIG=$(mktemp)
-sources_config "$SYSTEM_TYPE" > "$TMP_SOURCES_CONFIG"
-while IFS= read -r line; do
-    export "$line"
-done < "$TMP_SOURCES_CONFIG"
-rm "$TMP_SOURCES_CONFIG"
-
 # 导出通用变量
 export SCRIPT_DIR
 export KERNEL_VERSION
